@@ -1,59 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { ScreenStackHeaderCenterView } from "react-native-screens";
 import ColorCounter from "../components/ColorCounter";
 
 const COLOR_INCREEMENT = 20;
 
+const reducer = (state, action) => {
+  // state === {red: number, green: number, blue: number}
+  // action === colorToChange: 'red' || 'green' || 'blue', amount: 15 || -15
+
+  switch (action.colorToChange) {
+    case "red":
+      return state.red + action.amount > 255 || state.red + action.amount < 0
+        ? state
+        : { ...state, red: state.red + action.amount };
+    // return ;
+    case "green":
+      return state.green + action.amount > 255 ||
+        state.green + action.amount < 0
+        ? state
+        : { ...state, green: state.green + action.amount };
+    case "blue":
+      return state.blue + action.amount > 255 || state.blue + action.amount < 0
+        ? state
+        : { ...state, blue: state.blue + action.amount };
+    case "reset":
+      return {state, red: 0, green: 0, blue: 0};
+    default:
+      return state;
+  }
+};
+
 const SquareScreen = () => {
-  const [red, setRed] = useState(150);
-  const [green, setGreen] = useState(150);
-  const [blue, setBlue] = useState(150);
+  const [state, dispatch] = useReducer(reducer, { red: 0, green: 0, blue: 0 });
 
-  const setColor = (color, change) => {
-    // color === 'red', 'green', blue
-    // change === +20 or -20
-
-    switch (color) {
-      case "red":
-        red + change > 255 || red + change < 0 ? null : setRed(red + change);
-        return;
-      case "green":
-        green + change > 255 || green + change < 0
-          ? null
-          : setGreen(green + change);
-        return;
-      case "blue":
-        blue + change > 255 || blue + change < 0
-          ? null
-          : setBlue(blue + change);
-        return;
-      default:
-        return;
-    }
-  };
-
-  const setDefaultColor = () => {
-    setRed(150);
-    setGreen(150);
-    setBlue(150);
-  };
+  const { red, green, blue } = state;
 
   return (
     <View>
       <ColorCounter
-        onIncrease={() => setColor("red", COLOR_INCREEMENT)}
-        onDecrease={() => setColor("red", -1 * COLOR_INCREEMENT)}
+        onIncrease={() =>
+          dispatch({ colorToChange: "red", amount: COLOR_INCREEMENT })
+        }
+        onDecrease={() =>
+          dispatch({ colorToChange: "red", amount: -1 * COLOR_INCREEMENT })
+        }
         color="Red"
       />
       <ColorCounter
-        onIncrease={() => setColor("green", COLOR_INCREEMENT)}
-        onDecrease={() => setColor("green", -1 * COLOR_INCREEMENT)}
+        onIncrease={() =>
+          dispatch({ colorToChange: "green", amount: COLOR_INCREEMENT })
+        }
+        onDecrease={() =>
+          dispatch({ colorToChange: "green", amount: -1 * COLOR_INCREEMENT })
+        }
         color="Green"
       />
       <ColorCounter
-        onIncrease={() => setColor("blue", COLOR_INCREEMENT)}
-        onDecrease={() => setColor("blue", -1 * COLOR_INCREEMENT)}
+        onIncrease={() =>
+          dispatch({ colorToChange: "blue", amount: COLOR_INCREEMENT })
+        }
+        onDecrease={() =>
+          dispatch({ colorToChange: "blue", amount: -1 * COLOR_INCREEMENT })
+        }
         color="Blue"
       />
       <View
@@ -64,7 +73,7 @@ const SquareScreen = () => {
           marginBottom: 10,
         }}
       />
-      <Button title="Reset color" onPress={() => setDefaultColor()} />
+      <Button title="Reset color" onPress={() => dispatch({ colorToChange: "reset"}) } />
     </View>
   );
 };
